@@ -1,4 +1,5 @@
 using SmartPlant.API.Entities;
+using SmartPlant.API.Models;
 
 namespace SmartPlant.API.Services;
 
@@ -7,13 +8,7 @@ public interface IPlantRepository
     Task<IEnumerable<Plant>> GetPlantsAsync();
 
     Task<Plant?> GetPlantAsync(int plantId);
-
-    Task AddPlant(Plant plant);
-
-    Task AddMoistureForPlant(int plantId, Moisture moisture);
-
-    Task AddWaterLevelForPlant(int plantId, WaterLevel waterLevel);
-
+    void UpdatePlant(Plant plant, PlantForUpdatingDto plantForUpdatingDto);
     Task<bool> PlantExists(int plantId);
     
     Task<IEnumerable<Moisture>> GetMoisturesForPlant(int plantId);
@@ -23,6 +18,8 @@ public interface IPlantRepository
     Task<IEnumerable<WaterLevel>> GetWaterLevelsForPlant(int plantId);
 
     Task<WaterLevel> GetWaterLevelForPlant(int plantId, int waterLevelId);
+
+    void GiveWater(int plantId);
 
     Task<bool> SaveChangesAsync();
 

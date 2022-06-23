@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using SmartPlant.API.DbContext;
 using SmartPlant.API.Entities;
+using SmartPlant.API.Models;
 using SmartPlant.API.Services;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
@@ -22,7 +23,6 @@ public class PlantRepository : IPlantRepository
 
     public async Task<IEnumerable<Plant>> GetPlantsAsync()
     {
-        _client.publishMessage("Goed bezig",1);
         return await _context.Plants
             .Include(p => p.MoistureLevels)
             .Include(p=>p.WaterLevels)
@@ -44,13 +44,7 @@ public class PlantRepository : IPlantRepository
         return await _context.Plants.AnyAsync(p => p.PlantId == plantId);
     }
 
-    public async Task AddPlant(Plant plant)
-    {
-        if (!await PlantExists(plant.PlantId))
-        {
-            _context.Plants.AddAsync(plant);
-        }
-    }
+
 
     public async Task<IEnumerable<Moisture>> GetMoisturesForPlant(int plantId)
     {
@@ -66,14 +60,7 @@ public class PlantRepository : IPlantRepository
             .FirstOrDefaultAsync();
     }
 
-    public async Task AddMoistureForPlant(int plantId, Moisture moisture)
-    {
-        var plant = await GetPlantAsync(plantId);
-        if (plant != null)
-        {
-            plant.MoistureLevels.Add(moisture);
-        }
-    }
+
 
     public async Task<IEnumerable<WaterLevel>> GetWaterLevelsForPlant(int plantId)
     {
@@ -89,12 +76,41 @@ public class PlantRepository : IPlantRepository
             .FirstOrDefaultAsync();
     }
     
-    public async Task AddWaterLevelForPlant(int plantId, WaterLevel waterLevel)
+
+
+    public void GiveWater(int plantId)
     {
-        var plant = await GetPlantAsync(plantId);
-        if (plant != null)
+        _client.GiveWater(plantId);
+    }
+
+    public void UpdatePlant(Plant plant, PlantForUpdatingDto plantForUpdatingDto)
+    {
+        if (plant.Name != plantForUpdatingDto.Name)
         {
-            plant.WaterLevels.Add(waterLevel);
+            plant.Name = plantForUpdatingDto.Name;
+        }
+        if (plantForUpdatingDto.MinMoistureLevel != 0 && plant.MinMoistureLevel != plantForUpdatingDto.MinMoistureLevel)
+        {
+            plant.MinMoistureLevel = plantForUpdatingDto.MinMoistureLevel;
+            _client.SetMinMoistureValue(plant.PlantId, plantForUpdatingDto.MinMoistureLevel);
+        }
+
+        if (plantForUpdatingDto.MaxMoistureLevel != 0 && plant.MaxMoistureLevel != plantForUpdatingDto.MaxMoistureLevel)
+        {
+            plant.MaxMoistureLevel = plantForUpdatingDto.MaxMoistureLevel;
+            _client.SetMaxMoistureValue(plant.PlantId, plantForUpdatingDto.MaxMoistureLevel);
+        }
+
+        if (plantForUpdatingDto.MinWaterLevel != 0 && plant.MinWaterLevel != plantForUpdatingDto.MinWaterLevel)
+        {
+            plant.MinWaterLevel = plantForUpdatingDto.MinWaterLevel;
+            _client.SetMinWaterLevelValue(plant.PlantId, plantForUpdatingDto.MinWaterLevel);
+        }
+
+        if (plantForUpdatingDto.MaxWaterLevel != 0 && plant.MaxWaterLevel != plantForUpdatingDto.MaxWaterLevel)
+        {
+            plant.MaxWaterLevel = plantForUpdatingDto.MaxWaterLevel;
+            _client.SetMaxWaterLevelValue(plant.PlantId, plantForUpdatingDto.MaxWaterLevel);
         }
     }
 

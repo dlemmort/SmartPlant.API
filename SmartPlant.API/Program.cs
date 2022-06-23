@@ -20,6 +20,7 @@ builder.Services.AddDbContext<PlantContext>(dbContextOptions => dbContextOptions
     new MariaDbServerVersion(new Version())));
 
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
+builder.Services.AddScoped<MqttRepositoryService, MqttRepositoryService>();
 builder.Services.AddSingleton<PlantMqttClient, PlantMqttClient>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

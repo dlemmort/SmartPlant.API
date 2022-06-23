@@ -39,7 +39,7 @@ public class PlantController : ControllerBase
     }
 
     [HttpPatch("{plantId}")]
-    public async Task<ActionResult> UpdatePlant(int plantId, JsonPatchDocument<PlantForUpdatingDto> patchDocument)
+    public async Task<ActionResult> UpdatePlant(int plantId, [FromBody] PlantForUpdatingDto plantForUpdating)
     {
         var plantEntity = await _plantRepository.GetPlantAsync(plantId);
 
@@ -48,21 +48,12 @@ public class PlantController : ControllerBase
             return NotFound();
         }
 
-        var plantToPatch = _mapper.Map<PlantForUpdatingDto>(plantEntity);
-
-        patchDocument.ApplyTo(plantToPatch, ModelState);
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        if (!TryValidateModel(plantToPatch))
-        {
-            return BadRequest(ModelState);
-        }
-
-        _mapper.Map(plantToPatch, plantEntity);
+        _plantRepository.UpdatePlant(plantEntity,plantForUpdating);
 
         await _plantRepository.SaveChangesAsync();
 
