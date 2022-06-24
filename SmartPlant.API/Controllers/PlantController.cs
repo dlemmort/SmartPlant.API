@@ -38,6 +38,12 @@ public class PlantController : ControllerBase
         return Ok(_mapper.Map<PlantDto>(plantEntity));
     }
 
+    [HttpGet("{plantId}/water")]
+    public void GiveWater(int plantId)
+    {
+        _plantRepository.GiveWater(plantId);
+    }
+
     [HttpPatch("{plantId}")]
     public async Task<ActionResult> UpdatePlant(int plantId, [FromBody] PlantForUpdatingDto plantForUpdating)
     {

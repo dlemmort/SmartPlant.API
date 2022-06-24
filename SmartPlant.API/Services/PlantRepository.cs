@@ -51,7 +51,7 @@ public class PlantRepository : IPlantRepository
         return await _context.Moistures
             .Where(p => p.PlantId == plantId)
             .ToListAsync();
-    }
+    } 
 
     public async Task<Moisture> GetMoistureForPlant(int plantId, int moistureId)
     {

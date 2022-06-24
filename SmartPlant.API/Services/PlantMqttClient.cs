@@ -34,8 +34,8 @@ public class PlantMqttClient
         int plantId = int.Parse(subTopics[2]);
         string subTopic = subTopics[3];
 
-        using (var scope = _serviceScopeFactory.CreateScope())
-        {
+        var scope = _serviceScopeFactory.CreateScope();
+        
             var mqttRepositoryService = scope.ServiceProvider.GetService<MqttRepositoryService>();
             Plant plant;
             if (!await mqttRepositoryService.PlantExists(plantId))
@@ -57,14 +57,14 @@ public class PlantMqttClient
 
             switch (subTopic)
             {
-                case "moisture": plant.MoistureLevels.Add(new Moisture(){DateTime = DateTime.Now, Percentage = int.Parse(message)});
+                case "soilMoisture": plant.MoistureLevels.Add(new Moisture(){DateTime = DateTime.Now, Percentage = int.Parse(message)});
                     break;
-                case "waterlevel": plant.WaterLevels.Add(new WaterLevel(){DateTime = DateTime.Now, Percentage = int.Parse(message)});
+                case "waterLevel": plant.WaterLevels.Add(new WaterLevel(){DateTime = DateTime.Now, Percentage = int.Parse(message)});
                     break;
             }
 
             await mqttRepositoryService.SaveChangesAsync();
-        }
+        
     }
     
     public void GiveWater(int plantId)
